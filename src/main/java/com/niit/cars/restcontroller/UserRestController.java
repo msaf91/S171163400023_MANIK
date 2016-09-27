@@ -1,64 +1,76 @@
 package com.niit.cars.restcontroller;
 
+
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.niit.cars.dao.User_dao;
+import com.niit.cars.model.Blog;
 import com.niit.cars.model.User;
-import com.niit.cars.service.User_service;
+
 
 @RestController
 public class UserRestController {
 	
 	@Autowired
-	User_service userservice;
+	User_dao userdao;
 	
-	//Retrieve all Users
-	@RequestMapping(value = "/user/", method = RequestMethod.GET)
-	public ResponseEntity<List<User>> listAllUsers(){
-		List <User> user = userservice.showallusers();
-		if(user.isEmpty()){
-			return new ResponseEntity<List<User>>(HttpStatus.NOT_FOUND); 
-		}
-		return new ResponseEntity<List<User>>(HttpStatus.OK);
-	}
 	
-	//Retrieve Single User
-     @RequestMapping(value = "/user/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-      public ResponseEntity<User> getUser(@PathVariable("id")int id){
-    	 System.out.println("Fetching user with userid" +id);
-    	 User user = userservice.getbyId(id);
-    	 if(user == null){
-    		 System.out.println("User with id" +id+ "not found");
-    		 return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
-    	 }
-    	 return  new ResponseEntity<User>(HttpStatus.OK);
-     }
-
-     // Create a New User
-     @RequestMapping(value = "/user/", method = RequestMethod.POST)
-     public ResponseEntity<Void> createUser(@RequestBody User user, UriComponentsBuilder ucBuilder)
-     {
-    	 System.out.println("Creating User " +user.getUsername());
-    	 if(userservice.isUserexist(user)){
-    		 System.out.println("A User with name" +user.getUsername()+ "already exists");
-    		 return new ResponseEntity<Void>(HttpStatus.CONFLICT);
-    	 }
-    	 userservice.saveUser(user);
-    	 HttpHeaders headers = new HttpHeaders();
-    	 headers.setLocation(ucBuilder.path("/user/{id}").buildAndExpand(user.getUserid()).toUri());
-         return new ResponseEntity<Void>(HttpStatus.CREATED);
-     }
-     
-     
+	//--------Retrieve all Users
+    @GetMapping(value = "/User/")
+     public ResponseEntity<List<User>> listAllUser(){
+    	List<User> user = userdao.list();
+    	if(user.isEmpty())
+    	{
+    		return new ResponseEntity<List<User>>(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED);
+    	}
+            return new ResponseEntity<List<User>>(user, HttpStatus.OK);    
+    }
+    
+    
+    
+    
+	
+    
+    //--------Create a User
+    @PostMapping(value= "/User/")
+    public ResponseEntity<Void> createUser(@RequestBody User user, UriComponentsBuilder uriBuilder)
+    {
+    	System.out.println("Creating User with" +user.getUsername());
+    	if(userdao.isValidUser(user)){
+    		System.out.println("A User wtih name" + user.getUsername()+ "already exist");
+    		return new ResponseEntity<Void>(HttpStatus.CONFLICT);
+    	}
+    	userdao.saveOrUpdate(user);
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.setLocation(uriBuilder.path("/user/{id}").buildAndExpand(user.getId()).toUri());
+    	return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
+    }
+    
+   
+    
+    
+    
+    
+    
+    
+        
+    
+    
+         
+    
+	
 }

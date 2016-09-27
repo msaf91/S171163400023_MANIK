@@ -2,17 +2,29 @@ package com.niit.cars.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.stereotype.Component;
+
+
+
 
 @Entity
-@Table(name="User")
+@Table(name="User_prof")
+@Component
 public class User {
 	
 	@Id
 	@Column
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	private int userid;
+	
+	@Column
+	private String id;
+	
 	
 	@Column
 	private String username;
@@ -58,7 +70,16 @@ public class User {
 	public void setUserid(int userid) {
 		this.userid = userid;
 	}
+	
+	
+	public String getId() {
+		return id;
+	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+    
 	public String getUsername() {
 		return username;
 	}
@@ -155,19 +176,4 @@ public class User {
 		this.city = city;
 	}
 
-	public int indexOf(User user) {
-		
-		return 0;
-	}
-
-	
-
-		
-	
-	
-
-
-	
-		
-    
 }
